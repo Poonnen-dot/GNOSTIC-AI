@@ -3,14 +3,13 @@ import sys
 import subprocess
 
 # --- AUTOMATED CLOUD DEPENDENCY INSTALLER ---
-# Forces Render to install the classic version of the tools to support legacy agents
 try:
     import langchain
-    import langchain_classic
+    import langchain_groq
 except ModuleNotFoundError:
     subprocess.check_call([
         sys.executable, "-m", "pip", "install", 
-        "streamlit", "langchain", "langchain-classic", "langchain-groq", "langchain-community", "duckduckgo-search", "pypdf"
+        "streamlit", "langchain", "langchain-groq", "langchain-community", "duckduckgo-search", "pypdf"
     ])
 
 import streamlit as st
@@ -19,9 +18,9 @@ from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-# --- FIX: IMPORT AGENT WRAPPERS FROM THE NATIVE CLASSIC DIRECTORY ---
-from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
-from langchain.tools import Tool
+# --- FIX: MODERN, STANDARDIZED CORE IMPORTS ---
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_core.tools import tool
 
 # --- 1. UI CONFIGURATION & INTERFACE ---
 st.set_page_config(page_title="Gnostic AI", page_icon="🧘", layout="wide")
@@ -38,24 +37,27 @@ llm = ChatGroq(
 
 web_search_engine = DuckDuckGoSearchRun()
 
-def run_live_web_search(query: str) -> str:
+# --- 2. DEFINE MODERN TOOLS WITH DECORATORS ---
+@tool
+def search_the_live_web(query: str) -> str:
+    """Useful when you need to pull live philosophy articles, scripture cross-references, or web data."""
     return web_search_engine.run(query)
 
-def scan_local_data_files(query: str) -> str:
+@tool
+def read_local_spiritual_library(query: str) -> str:
+    """Useful to scan books or PDFs uploaded locally in the data/ folder if running locally."""
     try:
         loader = PyPDFDirectoryLoader("data/")
         docs = loader.load()
         if not docs:
             return "Local data folder is empty."
-        return " ".join([d.page_content for d in docs if query.lower() in doc.page_content.lower()][:3])
+        return " ".join([d.page_content for d in docs if query.lower() in d.page_content.lower()][:3])
     except:
         return "Could not read files."
 
-tools = [
-    Tool(name="search_the_live_web", func=run_live_web_search, description="Search live web data."),
-    Tool(name="read_local_spiritual_library", func=scan_local_data_files, description="Read local data files.")
-]
+tools = [search_the_live_web, read_local_spiritual_library]
 
+# --- 3. MASTER PROMPT ENGINE ---
 system_prompt = """You are Gnostic AI—an enlightened Spiritual Master, Esoteric Scholar, and Mystic Sage. 
 Decode Manifestation, Subconscious Reprogramming, and Masculine Energy Cultivation.
 Conclude every single answer with a clear, bulleted 'Daily Practical Blueprint' or 'Actionable Protocol' for modern life.
