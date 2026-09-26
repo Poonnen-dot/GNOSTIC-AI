@@ -1,5 +1,7 @@
 streamlit
+langchain
 langchain-groq
 langchain-community
+langchain-core
 duckduckgo-search
 pypdf
