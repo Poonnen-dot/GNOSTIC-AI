@@ -30,7 +30,7 @@ st.caption("Hosted on Cloud — Decoding Manifestation, Subconscious Reprogrammi
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile", 
+    model="openai/gpt-oss-120b",
     groq_api_key=GROQ_API_KEY,
     temperature=0.5
 )
