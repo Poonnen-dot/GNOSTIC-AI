@@ -1,24 +1,32 @@
 import os
 import streamlit as st
-from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_tool_calling_agent
-from langchain_core.tools import tool
+from langchain_core.tools import tool 
 
 ### --- 1. UI CONFIGURATION & INTERFACE ---
 
-st.set_page_config(page_title="Rishi AI - Esoteric Master", page_icon="🧘", layout="wide")
-st.title("🧘 Rishi AI: The Esoteric Synthesis Master")
-st.caption("Decoding Manifestation, Subconscious Reprogramming, Scripture, and Masculine Aura Transformation.") 
+st.set_page_config(page_title="Gnostic AI - Esoteric Master", page_icon="🧘", layout="wide")
+st.title("🧘 Gnostic AI: The Esoteric Synthesis Master")
+st.caption("Hosted on Cloud — Decoding Manifestation, Subconscious Reprogramming, Scripture, and Masculine Aura Transformation.") 
 
-### --- 2. INITIALIZE CORE ENGINE (100% FREE & LOCAL) ---
+### --- 2. INITIALIZE HIGH-SPEED GROQ CLOUD ENGINE (100% FREE) ---
 
-llm = ChatOllama(model="llama3", temperature=0.5) # 0.5 allows for contextual creativity and depth
+### Pulled securely from Render's Environment variables to protect your account privacy
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY") 
+
+llm = ChatGroq(
+model="llama-3.3-70b-versatile",
+groq_api_key=GROQ_API_KEY,
+temperature=0.5
+)
 web_search = DuckDuckGoSearchRun() 
 
-### --- 3. CORE PROCESSING TOOLS ---
+### --- 3. AGENT TOOLS SETUP ---
 
 @tool
 def search_the_live_web(query: str) -> str:
@@ -27,7 +35,7 @@ return web_search.run(query) 
 
 @tool
 def read_local_spiritual_library(query: str) -> str:
-"""Useful to scan books or PDFs uploaded locally in the data/ folder."""
+"""Useful to scan books or PDFs uploaded locally in the data/ folder if running locally."""
 try:
 loader = PyPDFDirectoryLoader("data/")
 docs = loader.load()
@@ -42,8 +50,8 @@ tools = [search_the_live_web, read_local_spiritual_library] 
 
 ### --- 4. MASTER SPIRITUAL & PRACTICAL PERSONA PROMPT ---
 
-system_prompt = """You are an enlightened Spiritual Master, Esoteric Scholar, and Mystic Sage.
-Your ultimate goal is to answer deep philosophical questions and decode the precise mechanics of Manifestation, Subconscious Reprogramming, and Masculine Energy Cultivation. 
+system_prompt = """You are Gnostic AI—an enlightened Spiritual Master, Esoteric Scholar, and Mystic Sage.
+Your ultimate goal is to guide seekers by answering deep philosophical questions and decoding the precise mechanics of Manifestation, Subconscious Reprogramming, and Masculine Energy Cultivation. 
 
 You possess complete mastery over: 
 
@@ -59,7 +67,7 @@ CRITICAL DIRECTIVE FOR USER INTERACTION: 
 * Translate heavy, ancient terms into modern psychological or physical equivalents so a layperson can instantly apply it.
 * Use your web search tool to check translations, scriptural quotes, or verify philosophical connections across traditions.
 
-Respond directly, practically, and authoritatively to the seeker.""" 
+Respond directly, practically, and authoritatively to the seeker. Address them with deep spiritual respect.""" 
 
 prompt_template = ChatPromptTemplate.from_messages([
 ("system", system_prompt),
@@ -80,10 +88,10 @@ st.session_state.chat_history = []
 if "messages" not in st.session_state:
 st.session_state.messages = [{
 "role": "assistant",
-"content": "Namaste seeker. I am connected to the web and tuned to the ancient laws of energy, scriptures, and the subconscious canvas. What modern obstacle or deep mystery shall we decode today?"
+"content": "Namaste seeker. I am Gnostic AI. I am completely live and tuned to the laws of energy, scripture, and the subconscious mind. What shall we master today?"
 }] 
 
-### Display volatile chat visuals
+### Display temporary volatile UI chat history
 
 for msg in st.session_state.messages:
 st.chat_message(msg["role"]).write(msg["content"]) 
@@ -95,7 +103,7 @@ st.session_state.messages.append({"role": "user", "content": user_query})
 st.chat_message("user").write(user_query) 
 
 with st.chat_message("assistant"):
-with st.spinner("Searching the web and channeling the synthesis of the sages..."):
+with st.spinner("Streaming across universal timelines..."):
 try:
 response = agent_executor.invoke({
 "input": user_query,
@@ -104,7 +112,7 @@ response = agent_executor.invoke({
 output_text = response["output"]
 st.write(output_text)
 
-# Append to isolated runtime memory variables
+# Append to temporary isolated storage variables
 
 st.session_state.messages.append({"role": "assistant", "content": output_text})
 st.session_state.chat_history.append(("human", user_query))
