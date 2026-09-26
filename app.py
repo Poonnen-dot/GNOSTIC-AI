@@ -3,19 +3,24 @@ import sys
 import subprocess
 
 # --- AUTOMATED CLOUD DEPENDENCY INSTALLER ---
-# This forces Render to install packages directly from inside the code execution block
+# Forces Render to install the classic version of the tools to support legacy agents
 try:
     import langchain
-    import langchain_groq
+    import langchain_classic
 except ModuleNotFoundError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "streamlit", "langchain", "langchain-groq", "langchain-community", "duckduckgo-search", "pypdf"])
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", 
+        "streamlit", "langchain", "langchain-classic", "langchain-groq", "langchain-community", "duckduckgo-search", "pypdf"
+    ])
 
 import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_tool_calling_agent
+
+# --- FIX: IMPORT AGENT WRAPPERS FROM THE NATIVE CLASSIC DIRECTORY ---
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from langchain.tools import Tool
 
 # --- 1. UI CONFIGURATION & INTERFACE ---
@@ -42,7 +47,7 @@ def scan_local_data_files(query: str) -> str:
         docs = loader.load()
         if not docs:
             return "Local data folder is empty."
-        return " ".join([d.page_content for d in docs if query.lower() in d.page_content.lower()][:3])
+        return " ".join([d.page_content for d in docs if query.lower() in doc.page_content.lower()][:3])
     except:
         return "Could not read files."
 
